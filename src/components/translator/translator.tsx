@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import LanguageSelector from "./language-selector"
 import TextArea from "./text-area"
 import TranslatorActions from "./translator-actions"
@@ -20,6 +20,11 @@ export interface Language {
   flag: string
 }
 
+interface TranslatorProps {
+  screenshot: string | null;
+  setScreenshot: (screenshot: string | null) => void;
+}
+
 const LANGUAGES: Language[] = [
   { code: "en", name: "English", flag: "🇺🇸" },
   { code: "pt", name: "Português", flag: "🇧🇷" },
@@ -33,32 +38,12 @@ const LANGUAGES: Language[] = [
   { code: "ru", name: "Русский", flag: "🇷🇺" },
 ]
 
-export default function Translator() {
+export default function Translator({ screenshot, setScreenshot }: TranslatorProps) {
   const [sourceLanguage, setSourceLanguage] = useState<Language>(LANGUAGES[0])
   const [targetLanguage, setTargetLanguage] = useState<Language>(LANGUAGES[1])
   const [sourceText, setSourceText] = useState("")
   const [translatedText, setTranslatedText] = useState("")
   const [isTranslating, setIsTranslating] = useState(false)
-  const [screenshot, setScreenshot] = useState<string | null>(null)
-  const [screenshotError, setScreenshotError] = useState<string | null>(null)
-
-  useEffect(() => {
-    window.Main.on('start-screenshot', async () => {
-      console.log("Received start-screenshot event")
-      setScreenshot(null)
-      setScreenshotError(null)
-      try {
-        const screenshotDataUrl = await window.Main.takeScreenshot()
-        if (!screenshotDataUrl) {
-          throw new Error("A função takeScreenshot não retornou dados.")
-        }
-        setScreenshot(screenshotDataUrl)
-      } catch (error) {
-        console.error("Falha ao capturar a tela:", error)
-        setScreenshotError(error.message)
-      }
-    })
-  }, [])
 
   const handleSwapLanguages = () => {
     setSourceLanguage(targetLanguage)
@@ -94,7 +79,6 @@ export default function Translator() {
 
   const handleClearScreenshot = () => {
     setScreenshot(null)
-    setScreenshotError(null)
   }
 
   return (
@@ -105,7 +89,7 @@ export default function Translator() {
         </Header>
 
         <ContentWrapper>
-          {screenshot && (
+          {screenshot ? (
             <div style={{ marginBottom: '1rem', position: 'relative' }}>
               <img src={screenshot} alt="Screenshot" style={{ width: '100%', borderRadius: '8px' }} />
               <button 
@@ -116,75 +100,71 @@ export default function Translator() {
                 &times;
               </button>
             </div>
+          ) : (
+            <>
+              <LanguageBar>
+                <LanguageSelector
+                  languages={LANGUAGES}
+                  selectedLanguage={sourceLanguage}
+                  onSelectLanguage={setSourceLanguage}
+                  label="De"
+                />
+
+                <SwapButton onClick={handleSwapLanguages} aria-label="Trocar idiomas">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M7 16V4M7 4L3 8M7 4l4 4" />
+                    <path d="M17 8v12m0 0l4-4m-4 4l-4-4" />
+                  </svg>
+                </SwapButton>
+
+                <LanguageSelector
+                  languages={LANGUAGES}
+                  selectedLanguage={targetLanguage}
+                  onSelectLanguage={setTargetLanguage}
+                  label="Para"
+                />
+              </LanguageBar>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                <TextArea
+                  value={sourceText}
+                  onChange={setSourceText}
+                  placeholder={`Digite o texto em ${sourceLanguage.name}...`}
+                  onCopy={() => handleCopy(sourceText)}
+                  showCopy={sourceText.length > 0}
+                  maxLength={5000}
+                />
+
+                <Divider />
+
+                <TextArea
+                  value={translatedText}
+                  onChange={setTranslatedText}
+                  placeholder="Tradução"
+                  onCopy={() => handleCopy(translatedText)}
+                  showCopy={translatedText.length > 0}
+                  readOnly
+                  isTranslating={isTranslating}
+                />
+              </div>
+
+              <TranslatorActions
+                onTranslate={handleTranslate}
+                onClear={handleClear}
+                isTranslating={isTranslating}
+                hasText={sourceText.length > 0}
+              />
+            </>
           )}
-          {screenshotError && (
-            <div style={{ marginBottom: '1rem', padding: '1rem', color: 'red', background: 'rgba(255, 0, 0, 0.1)', border: '1px solid red', borderRadius: '8px' }}>
-                <strong>Erro ao capturar a tela:</strong>
-                <p>{screenshotError}</p>
-                <button onClick={handleClearScreenshot} style={{ marginTop: '10px' }}>OK</button>
-            </div>
-          )}
-          <LanguageBar>
-            <LanguageSelector
-              languages={LANGUAGES}
-              selectedLanguage={sourceLanguage}
-              onSelectLanguage={setSourceLanguage}
-              label="De"
-            />
-
-            <SwapButton onClick={handleSwapLanguages} aria-label="Trocar idiomas">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M7 16V4M7 4L3 8M7 4l4 4" />
-                <path d="M17 8v12m0 0l4-4m-4 4l-4-4" />
-              </svg>
-            </SwapButton>
-
-            <LanguageSelector
-              languages={LANGUAGES}
-              selectedLanguage={targetLanguage}
-              onSelectLanguage={setTargetLanguage}
-              label="Para"
-            />
-          </LanguageBar>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <TextArea
-              value={sourceText}
-              onChange={setSourceText}
-              placeholder={`Digite o texto em ${sourceLanguage.name}...`}
-              onCopy={() => handleCopy(sourceText)}
-              showCopy={sourceText.length > 0}
-              maxLength={5000}
-            />
-
-            <Divider />
-
-            <TextArea
-              value={translatedText}
-              onChange={setTranslatedText}
-              placeholder="Tradução"
-              onCopy={() => handleCopy(translatedText)}
-              showCopy={translatedText.length > 0}
-              readOnly
-              isTranslating={isTranslating}
-            />
-          </div>
-
-          <TranslatorActions
-            onTranslate={handleTranslate}
-            onClear={handleClear}
-            isTranslating={isTranslating}
-            hasText={sourceText.length > 0}
-          />
         </ContentWrapper>
       </GlassCard>
     </TranslatorContainer>

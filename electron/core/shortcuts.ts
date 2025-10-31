@@ -1,5 +1,39 @@
-import { globalShortcut, BrowserWindow, Tray } from 'electron';
+import { globalShortcut, BrowserWindow, Tray, screen } from 'electron';
 import { positionPopup } from './positioner';
+
+declare const SELECTION_WINDOW_WEBPACK_ENTRY: string;
+declare const SELECTION_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+
+let selectionWindow: BrowserWindow | null = null;
+
+function createSelectionWindow() {
+  const { width, height } = screen.getPrimaryDisplay().bounds;
+
+  selectionWindow = new BrowserWindow({
+    width,
+    height,
+    x: 0,
+    y: 0,
+    frame: false,
+    transparent: false, // Set to false, as we're using a semi-transparent background color
+    backgroundColor: '#D3D3D3', // Solid light gray
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    focusable: true,
+    webPreferences: {
+      contextIsolation: true,
+      preload: SELECTION_WINDOW_PRELOAD_WEBPACK_ENTRY,
+    },
+  });
+
+  selectionWindow.loadURL(SELECTION_WINDOW_WEBPACK_ENTRY);
+  selectionWindow.on("closed", () => (selectionWindow = null));
+  selectionWindow.on("blur", () => {
+    if (selectionWindow?.isVisible()) {
+      selectionWindow.close();
+    }
+  });
+}
 
 export function registerShortcuts(popupWindow: BrowserWindow, tray: Tray) {
   const ret = globalShortcut.register('Alt+S', () => {
@@ -20,19 +54,10 @@ export function registerShortcuts(popupWindow: BrowserWindow, tray: Tray) {
   }
 
   const retScreenshot = globalShortcut.register('Alt+Shift+S', () => {
-    if (!popupWindow) return;
-
-    if (!popupWindow.isVisible()) {
-      positionPopup(popupWindow, tray);
-      popupWindow.show();
+    // Bypassing IPC, direct call for debugging
+    if (!selectionWindow) {
+      createSelectionWindow();
     }
-
-    // Add a small delay to ensure the renderer is ready
-    setTimeout(() => {
-      if (popupWindow && !popupWindow.isDestroyed()) {
-        popupWindow.webContents.send('start-screenshot');
-      }
-    }, 150);
   });
 
   if (!retScreenshot) {

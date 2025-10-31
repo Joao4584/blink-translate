@@ -1,15 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Translator from './translator/translator';
 import { GlobalStyle } from '../config/global.style';
 
 export function App() {
+  const [screenshot, setScreenshot] = useState<string | null>(null);
 
+  useEffect(() => {
+    window.Main.on('screenshot-taken', (dataUrl: string) => {
+      setScreenshot(dataUrl);
+    });
+  }, []);
 
   return (
     <Wrapper>
       <GlobalStyle />
-      <Translator/>
+      <Translator screenshot={screenshot} setScreenshot={setScreenshot} />
     </Wrapper>
   );
 }

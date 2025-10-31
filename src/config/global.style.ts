@@ -13,7 +13,8 @@ export const GlobalStyle = createGlobalStyle`
     padding: 0;
     color: #d4d4d4;
     height: 100vh;
-    width: vw;
+    width: 100vw;
+    background-color: transparent;
   }
 
   #root {

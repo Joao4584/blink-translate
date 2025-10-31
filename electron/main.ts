@@ -38,6 +38,8 @@ function createPopupWindow() {
   });
 }
 
+app.disableHardwareAcceleration();
+
 app.whenReady().then(() => {
   createPopupWindow();
   

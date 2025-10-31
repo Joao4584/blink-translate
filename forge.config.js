@@ -20,7 +20,15 @@ module.exports = {
               js: "./src/index.tsx",
               name: "main_window",
               preload: {
-                js: "./electron/bridge.ts"
+                js: "./electron/preload.ts"
+              }
+            },
+            {
+              html: "./public/selection.html",
+              js: "./src/selection.tsx",
+              name: "selection_window",
+              preload: {
+                js: "./electron/preload.ts"
               }
             }
           ],
