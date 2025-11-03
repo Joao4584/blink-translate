@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('Main', {
+  getPlatform: () => ipcRenderer.invoke('get-platform'),
   getVolume: () => ipcRenderer.invoke('get-volume'),
   setVolume: (volume: number) => ipcRenderer.send('set-volume', volume),
   increaseVolume: () => ipcRenderer.send('increase-volume'),

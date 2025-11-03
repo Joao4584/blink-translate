@@ -2,6 +2,8 @@ import { ipcMain, BrowserWindow, screen, desktopCapturer } from 'electron';
 import * as loudness from 'loudness';
 
 export function registerListeners(popupWindow: BrowserWindow) {
+  ipcMain.handle('get-platform', () => process.platform);
+
   ipcMain.handle("get-volume", async () => loudness.getVolume());
 
   ipcMain.on("set-volume", async (_, volume) => loudness.setVolume(volume));

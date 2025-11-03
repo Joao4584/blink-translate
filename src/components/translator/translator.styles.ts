@@ -28,9 +28,14 @@ export const GlassCard = styled.div`
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: 0.75rem;
-
   overflow: hidden;
   z-index: 1;
+
+  .linux & {
+    border-radius: 0rem;
+    width: 100%;
+  }
+  
 `
 
 export const Header = styled.div`

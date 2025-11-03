@@ -6,7 +6,7 @@ let lastClickTime = 0;
 
 export function createTray(popupWindow: BrowserWindow): Tray {
   const tray = new Tray(nativeImage.createFromPath(Icon));
-  tray.setToolTip("Controle de Volume");
+  tray.setToolTip("Blink Translate");
 
   tray.on("click", () => {
     const now = Date.now();

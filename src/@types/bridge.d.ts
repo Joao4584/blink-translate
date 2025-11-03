@@ -4,6 +4,7 @@ declare global {
   // eslint-disable-next-line
   interface Window {
     Main: {
+      getPlatform: () => Promise<string>;
       getVolume: () => Promise<number>;
       setVolume: (volume: number) => void;
       increaseVolume: () => void;
