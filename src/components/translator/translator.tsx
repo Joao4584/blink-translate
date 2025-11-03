@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import LanguageSelector from "./language-selector"
 import TextArea from "./text-area"
 import TranslatorActions from "./translator-actions"
@@ -20,10 +20,7 @@ export interface Language {
   flag: string
 }
 
-interface TranslatorProps {
-  screenshot: string | null;
-  setScreenshot: (screenshot: string | null) => void;
-}
+
 
 const LANGUAGES: Language[] = [
   { code: "en", name: "English", flag: "🇺🇸" },
@@ -38,7 +35,7 @@ const LANGUAGES: Language[] = [
   { code: "ru", name: "Русский", flag: "🇷🇺" },
 ]
 
-export default function Translator({ screenshot, setScreenshot }: TranslatorProps) {
+export default function Translator() {
   const [sourceLanguage, setSourceLanguage] = useState<Language>(LANGUAGES[0])
   const [targetLanguage, setTargetLanguage] = useState<Language>(LANGUAGES[1])
   const [sourceText, setSourceText] = useState("")
@@ -77,9 +74,17 @@ export default function Translator({ screenshot, setScreenshot }: TranslatorProp
     }
   }
 
-  const handleClearScreenshot = () => {
-    setScreenshot(null)
-  }
+  useEffect(() => {
+    const pasteTextListener = (text: string) => {
+      setSourceText(text);
+    };
+
+    window.Main.on('paste-text', pasteTextListener);
+
+    return () => {
+      window.Main.off('paste-text', pasteTextListener);
+    };
+  }, []);
 
   return (
     <TranslatorContainer>
@@ -89,19 +94,7 @@ export default function Translator({ screenshot, setScreenshot }: TranslatorProp
         </Header>
 
         <ContentWrapper>
-          {screenshot ? (
-            <div style={{ marginBottom: '1rem', position: 'relative' }}>
-              <img src={screenshot} alt="Screenshot" style={{ width: '100%', borderRadius: '8px' }} />
-              <button 
-                onClick={handleClearScreenshot} 
-                style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer', fontSize: '16px' }}
-                aria-label="Fechar Screenshot"
-              >
-                &times;
-              </button>
-            </div>
-          ) : (
-            <>
+    
               <LanguageBar>
                 <LanguageSelector
                   languages={LANGUAGES}
@@ -163,8 +156,6 @@ export default function Translator({ screenshot, setScreenshot }: TranslatorProp
                 isTranslating={isTranslating}
                 hasText={sourceText.length > 0}
               />
-            </>
-          )}
         </ContentWrapper>
       </GlassCard>
     </TranslatorContainer>

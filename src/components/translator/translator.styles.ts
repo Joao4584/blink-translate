@@ -24,7 +24,7 @@ export const GlassCard = styled.div`
   position: relative;
   width: 95%;
   max-width: 500px;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: 0.75rem;
@@ -70,12 +70,8 @@ export const ContentWrapper = styled.div`
 export const LanguageBar = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.45rem;
   
-  @media (max-width: 640px) {
-    flex-direction: column;
-    align-items: stretch;
-  }
 `
 
 export const SwapButton = styled.button`
@@ -91,7 +87,8 @@ export const SwapButton = styled.button`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  
+  margin-top: 1.6rem;
+
   &:hover {
     background: rgba(255, 255, 255, 0.8);
     border-color: rgba(0, 0, 0, 0.15);

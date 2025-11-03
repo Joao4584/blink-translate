@@ -13,6 +13,7 @@ declare global {
       takeScreenshot: () => Promise<string>;
       sendMessage: (message: string) => void;
       on: (channel: string, callback: Function) => void;
+      off: (channel: string, callback: Function) => void;
     }
   }
 }

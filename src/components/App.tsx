@@ -18,7 +18,7 @@ export function App() {
   return (
     <Wrapper className={platform === 'linux' ? 'linux' : ''}>
       <GlobalStyle />
-      <Translator screenshot={screenshot} setScreenshot={setScreenshot} />
+      <Translator />
     </Wrapper>
   );
 }
