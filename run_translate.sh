@@ -1,9 +1,14 @@
 #!/bin/bash
 
+# Navega para o diretório do script
 cd "$(dirname "$0")/python"
 
-source venv/bin/activate
+IMAGE_NAME="blink-translator-python"
 
-python main.py "$@"
+if ! docker image inspect "$IMAGE_NAME" &> /dev/null; then
+    echo "Construindo a imagem Docker '$IMAGE_NAME'..."
+    docker build -t "$IMAGE_NAME" .
+fi
 
-deactivate
+echo "Executando tradução no contêiner..."
+docker run --rm "$IMAGE_NAME" "$@"
