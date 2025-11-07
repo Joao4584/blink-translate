@@ -1,1 +1,2 @@
-argostranslate
+libretranslate==1.5.3
+torch==2.0.1
